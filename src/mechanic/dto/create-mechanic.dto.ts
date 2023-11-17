@@ -1,4 +1,3 @@
-// src/mechanic/dto/create-mechanic.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
@@ -32,14 +31,11 @@ export class CreateMechanicDto {
   homeAddress: string;
 
   @ApiProperty({ type: 'string', format: 'binary' })
-  @IsNotEmpty()
   companyImage: Express.Multer.File;
 
   @ApiProperty({ type: 'string', format: 'binary' })
-  @IsNotEmpty()
   idCardImage: Express.Multer.File;
 
   @ApiProperty({ type: 'string', format: 'binary' })
-  @IsNotEmpty()
   businessPermitImage: Express.Multer.File;
 }
