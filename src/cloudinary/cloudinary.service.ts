@@ -1,4 +1,3 @@
-// cloudinary/cloudinary.service.ts
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
@@ -17,34 +16,33 @@ export class CloudinaryService {
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     try {
       return new Promise((resolve, reject) => {
+        if (!file.buffer || file.buffer.length === 0) {
+          reject(new Error('Empty file'));
+          return;
+        }
+
         v2.uploader
           .upload_stream(
             {
               resource_type: 'image',
               public_id: `${this.folder}/${this.subFolder}/images/${type}/${id}`,
             },
-            (error, result) => {
+            async (error, result) => {
               if (error) {
                 reject(error);
               } else if (result) {
-                // Check if result is defined
                 resolve(result);
               } else {
                 reject(new Error('Upload result is undefined.'));
               }
             },
           )
-          .end(file.buffer);
+          .end(Buffer.from(file.buffer));
       });
     } catch (error: any) {
-      console.log(error);
       throw new BadRequestException(error.message);
     }
   }
-
-  // businessPermitImage
-  // idCardImage
-  // companyImage
 
   async uploadBusinessPermit(
     file: any,
