@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities';
 import { Repository } from 'typeorm';
 import { BadRequestException } from '@nestjs/common';
+import { VerifyOtpDto } from '../dto/verify-otp.dto';
 
 @Injectable()
 export class TwilioService {
@@ -50,7 +51,7 @@ export class TwilioService {
 
   async verifyOtp(
     user: User,
-    code: string,
+    { code }: VerifyOtpDto,
     verificationSid: string,
   ): Promise<void> {
     try {
