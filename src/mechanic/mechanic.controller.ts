@@ -4,7 +4,6 @@ import {
   Body,
   UseInterceptors,
   UploadedFiles,
-  UseGuards,
 } from '@nestjs/common';
 import { MechanicService } from './mechanic.service';
 import { CreateMechanicDto } from './dto/create-mechanic.dto';
