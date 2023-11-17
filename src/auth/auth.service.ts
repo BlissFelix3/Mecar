@@ -4,6 +4,7 @@ import {
   NotFoundException,
   HttpException,
   HttpStatus,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignupDto } from './dto/signup.dto';
@@ -77,6 +78,18 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto, response: ExpressResponse): Promise<any> {
+    const findUser = await this.userRepository.findOne({
+      where: [
+        { email: loginDto.emailOrPhone },
+        { phoneNumber: loginDto.emailOrPhone },
+      ],
+    });
+
+    if (!findUser) throw new NotFoundException('USER_NOT_FOUND');
+
+    if (!findUser.isPhoneVerified)
+      throw new ForbiddenException('Phone number not verified');
+
     const user = await this.validateUser(
       loginDto.emailOrPhone,
       loginDto.password,
@@ -158,5 +171,15 @@ export class AuthService {
 
   async validateUserByRefreshToken(payload: JwtPayload): Promise<any> {
     return this.userService.findById(payload.sub);
+  }
+
+  async viewProfile(user: User) {
+    const foundUser = await this.userRepository.findOne({
+      where: { id: user.id },
+    });
+
+    if (!foundUser) throw new NotFoundException('USER_NOT_FOUND');
+
+    return foundUser;
   }
 }

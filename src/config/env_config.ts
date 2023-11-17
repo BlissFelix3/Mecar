@@ -30,7 +30,11 @@ const config = {
     },
   },
   db: {
-    url: env.require('DATABASEURL'),
+    database: env.require('DB_DATABASE'),
+    host: env.require('DB_HOST'),
+    port: env.require('DB_PORT'),
+    password: env.require('DB_PASSWORD'),
+    username: env.require('DB_USERNAME'),
   },
 
   redis: {

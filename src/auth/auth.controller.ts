@@ -13,6 +13,7 @@ import {
   HttpException,
   HttpStatus,
   Req,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
@@ -29,6 +30,11 @@ import { TwilioService } from './otp_twilio/otp.service';
 import { User } from '../users/entities';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GetUser } from 'src/shared/decorators/user.decorator';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -54,33 +60,7 @@ export class AuthController {
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<any> {
-    const user = await this.authService.validateUser(
-      loginDto.emailOrPhone,
-      loginDto.password,
-    );
-
-    if (!user) {
-      throw new BadRequestException(
-        'Invalid email or phone number or password',
-      );
-    }
-
-    const jwtToken = await this.authService.generateJwtToken(
-      user.id,
-      user.email,
-    );
-    const refreshToken = await this.authService.generateRefreshToken(
-      user.id,
-      user.email,
-    );
-
-    const refreshTokenCookie = serialize('refreshToken', refreshToken, {
-      httpOnly: true,
-    });
-
-    res.setHeader('Set-Cookie', refreshTokenCookie);
-
-    return { jwtToken, user };
+    return this.authService.login(loginDto, res);
   }
 
   @Post('refresh-token')
@@ -157,7 +137,7 @@ export class AuthController {
   @Post('verify-otp/:phoneNumber')
   async verifyOtp(
     @Param('phoneNumber') phoneNumber: string,
-    @Body('code') code: string,
+    @Body() dto: VerifyOtpDto,
     @Body('verificationSid') verificationSid: string,
   ): Promise<{ message: string }> {
     try {
@@ -169,7 +149,7 @@ export class AuthController {
         throw new UnauthorizedException('User not found');
       }
 
-      await this.twilioService.verifyOtp(user, code, verificationSid);
+      await this.twilioService.verifyOtp(user, dto, verificationSid);
       return { message: 'OTP verified successfully' };
     } catch (error: any) {
       throw new BadRequestException('Failed to verify OTP: ' + error.message);
@@ -183,5 +163,12 @@ export class AuthController {
   ): Promise<{ message: string }> {
     res.clearCookie('refreshToken');
     return { message: 'Logged out successfully' };
+  }
+
+  @ApiBearerAuth()
+  @Get('/profile')
+  @UseGuards(JwtAuthGuard)
+  async viewProfile(@GetUser() user: User) {
+    return this.authService.viewProfile(user);
   }
 }

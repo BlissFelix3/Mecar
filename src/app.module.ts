@@ -14,13 +14,14 @@ import { CarOwnerModule } from './car-owner/car-owner.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { MailModule } from './mail/mail.module';
 import { UsersModule } from './users/users.module';
+import appConfig from './config/env_config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       ignoreEnvFile: true,
       isGlobal: true,
-      load: [redisConfig],
+      load: [redisConfig, appConfig],
     }),
     RedisModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
@@ -32,11 +33,11 @@ import { UsersModule } from './users/users.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
+        host: configService.get<string>('db.host'),
+        port: configService.get<number>('db.port'),
+        username: configService.get<string>('db.username'),
+        password: configService.get<string>('db.password'),
+        database: configService.get<string>('db.database'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
         autoLoadEntities: true,
