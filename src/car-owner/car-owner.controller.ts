@@ -10,7 +10,7 @@ export class CarOwnerController {
   constructor(private readonly carOwnerService: CarOwnerService) {}
 
   @Roles(UserRole.CAR_OWNER)
-  @Post('signup')
+  @Post('create')
   async createCarOwner(
     @Body() createCarOwnerDto: CreateCarOwnerDto,
   ): Promise<CarOwner> {
