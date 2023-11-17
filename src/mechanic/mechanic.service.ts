@@ -26,21 +26,21 @@ export class MechanicService {
 
       const uploadCompanyImage: any = companyImage
         ? this.cloudinaryService.uploadCompanyImage(
-            companyImage,
+            companyImage[0],
             mechanicDto.cacNumber,
           )
         : null;
 
       const uploadIDCardImage: any = idCardImage
         ? this.cloudinaryService.uploadIDCardImage(
-            idCardImage,
+            idCardImage[0],
             mechanicDto.cacNumber,
           )
         : null;
 
       const uploadBusinessPermitImage: any = businessPermitImage
         ? this.cloudinaryService.uploadBusinessPermit(
-            businessPermitImage,
+            businessPermitImage[0],
             mechanicDto.cacNumber,
           )
         : null;
@@ -64,8 +64,7 @@ export class MechanicService {
       });
 
       return await this.mechanicRepository.save(mechanic);
-    } catch (error: any) {
-      console.error('Error creating mechanic:', error.message);
+    } catch (error) {
       throw new BadRequestException('Failed to create mechanic');
     }
   }
