@@ -1,7 +1,6 @@
 import {
   Body,
   Post,
-  Get,
   Controller,
   UseGuards,
   UseInterceptors,
@@ -20,7 +19,7 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 // import { RolesGuard } from './guards/roles.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+// import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UserRole } from 'src/shared/enums';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
@@ -30,7 +29,6 @@ import { TwilioService } from './otp_twilio/otp.service';
 import { User } from '../users/entities';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GetUser } from 'src/shared/decorators/user.decorator';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -185,12 +183,5 @@ export class AuthController {
   ): Promise<{ message: string }> {
     res.clearCookie('refreshToken');
     return { message: 'Logged out successfully' };
-  }
-
-  @Get('profile')
-  @UseGuards(JwtAuthGuard)
-  async getProfile(@Req() req: any): Promise<any> {
-    const user = req.user;
-    return { user };
   }
 }
