@@ -1,7 +1,7 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import redisConfig from './redis/redis.config';
 import { RedisModule } from 'nestjs-redis';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -63,15 +63,6 @@ import appConfig from './config/env_config';
     {
       provide: APP_INTERCEPTOR,
       useClass: CacheInterceptor,
-    },
-
-    {
-      provide: APP_PIPE,
-      useFactory: () =>
-        new ValidationPipe({
-          whitelist: true,
-          transform: true,
-        }),
     },
     AppService,
   ],
