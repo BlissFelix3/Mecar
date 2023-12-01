@@ -31,14 +31,20 @@ export class User {
   @Column({ default: false })
   isPhoneVerified: boolean;
 
+  @Column({ nullable: true, unique: true })
+  registrationToken: string;
+
+  @Column({ default: false })
+  isTwoFactorEnabled: boolean;
+
   @Column('simple-array', { default: [UserRole.USER] })
   roles: UserRole[];
 
-  @OneToOne(() => CarOwner, { cascade: true, eager: true })
+  @OneToOne(() => CarOwner, (carOwner) => carOwner.user)
   @JoinColumn()
   carOwner: CarOwner;
 
-  @OneToOne(() => Mechanic, { cascade: true, eager: true })
+  @OneToOne(() => Mechanic, (mechanic) => mechanic.user)
   @JoinColumn()
   mechanic: Mechanic;
 

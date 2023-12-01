@@ -28,4 +28,8 @@ export class UserService {
   async updateUser(user: User): Promise<void> {
     await this.userRepository.save(user);
   }
+
+  async save(user: User): Promise<User> {
+    return this.userRepository.save(user);
+  }
 }
