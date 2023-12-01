@@ -2,7 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
 import { ConfigService } from '@nestjs/config';
-import { INestApplication } from '@nestjs/common';
+import {
+  INestApplication,
+  ValidationError,
+  ValidationPipe,
+  BadRequestException,
+} from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
 config();
@@ -11,6 +16,27 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      validationError: {
+        target: false,
+        value: false,
+      },
+      exceptionFactory: (validationErrors: ValidationError[] = []) =>
+        new BadRequestException(
+          validationErrors.reduce(
+            (errorObj, validationList) => ({
+              ...errorObj,
+              [validationList.property]: validationList,
+            }),
+            {},
+          ),
+        ),
+    }),
+  );
 
   const appHost = 'http://localhost:3000';
   const configService = app.get<ConfigService>(ConfigService);
