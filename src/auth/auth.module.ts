@@ -18,6 +18,8 @@ import { MechanicService } from 'src/mechanic/mechanic.service';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { TwilioService } from './otp_twilio/otp.service';
 import { UserService } from 'src/users/users.service';
+import { MailModule } from 'src/mail/mail.module';
+import { MailService } from 'src/mail/mail.service';
 
 @Module({
   imports: [
@@ -43,6 +45,7 @@ import { UserService } from 'src/users/users.service';
     }),
     MechanicModule,
     CarOwnerModule,
+    MailModule,
   ],
   controllers: [AuthController],
   providers: [
@@ -51,10 +54,12 @@ import { UserService } from 'src/users/users.service';
     JwtStrategy,
     JwtRefreshTokenStrategy,
     MechanicService,
+    ConfigService,
     CarOwnerService,
     CloudinaryService,
     TwilioService,
     UserService,
+    MailService,
   ],
   exports: [AuthService],
 })
