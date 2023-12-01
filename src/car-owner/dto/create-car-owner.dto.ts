@@ -1,16 +1,12 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, IsPhoneNumber } from 'class-validator';
 
 export class CreateCarOwnerDto {
   @IsNotEmpty()
   @IsString()
-  firstName: string;
+  name: string;
 
   @IsNotEmpty()
-  @IsString()
-  lastName: string;
-
-  @IsNotEmpty()
-  @IsString()
+  @IsPhoneNumber()
   phone: string;
 
   @IsNotEmpty()
