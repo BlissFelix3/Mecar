@@ -17,7 +17,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
     if (err || !user) {
       throw (
         err ||
-        new UnauthorizedException('You are currently not a registered user')
+        new UnauthorizedException('Unrecognized Email/PhoneNumber or Password')
       );
     }
     return user;
