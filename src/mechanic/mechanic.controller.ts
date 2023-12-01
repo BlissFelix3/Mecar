@@ -4,21 +4,22 @@ import {
   Body,
   UseInterceptors,
   UploadedFiles,
+  Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { MechanicService } from './mechanic.service';
 import { CreateMechanicDto } from './dto/create-mechanic.dto';
 import { Mechanic } from './entities/mechanic.entity';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { Roles } from 'src/shared/decorators/roles.decorator';
-import { UserRole } from 'src/shared/enums';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 @Controller('mechanics')
 export class MechanicController {
   constructor(private readonly mechanicService: MechanicService) {}
 
-  @Roles(UserRole.MECHANIC)
   @Post('create')
+  @UseGuards(RolesGuard)
   @UseInterceptors(
     FileFieldsInterceptor([
       { name: 'companyImage', maxCount: 1 },
@@ -29,6 +30,7 @@ export class MechanicController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateMechanicDto })
   async createMechanic(
+    @Headers('registration-token') registrationToken: string,
     @UploadedFiles()
     files: {
       companyImage?: Express.Multer.File[];
@@ -37,6 +39,10 @@ export class MechanicController {
     },
     @Body() mechanicDto: CreateMechanicDto,
   ): Promise<Mechanic> {
-    return this.mechanicService.createMechanic(mechanicDto, files);
+    return this.mechanicService.createMechanic(
+      mechanicDto,
+      files,
+      registrationToken,
+    );
   }
 }

@@ -5,7 +5,6 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { UserRole } from '../../shared/enums';
 import { User } from 'src/users/entities';
 
 @Entity('mechanics')
@@ -43,10 +42,7 @@ export class Mechanic {
   @Column()
   businessPermitImage: string;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.carOwner)
   @JoinColumn()
   user: User;
-
-  @Column('simple-array', { default: [UserRole.MECHANIC] })
-  roles: UserRole[];
 }
