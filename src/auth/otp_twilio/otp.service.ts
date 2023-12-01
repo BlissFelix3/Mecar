@@ -49,6 +49,52 @@ export class TwilioService {
     }
   }
 
+  async generate2FA(
+    user: User,
+  ): Promise<{ message: string; verificationSid: string }> {
+    try {
+      const serviceSid = this.configService.get(
+        'TWILIO_VERIFICATION_SERVICE_SID',
+      );
+
+      const verification = await this.twilioClient.verify.v2
+        .services(serviceSid)
+        .verifications.create({ to: user.phoneNumber, channel: 'sms' });
+
+      return {
+        message: '2FA Code Sent',
+        verificationSid: verification.sid,
+      };
+    } catch (error: any) {
+      throw new BadRequestException(
+        'Failed to send OTP. Phone number not registered',
+      );
+    }
+  }
+
+  async resendOtp(
+    user: User,
+  ): Promise<{ message: string; verificationSid: string }> {
+    try {
+      const serviceSid = this.configService.get(
+        'TWILIO_VERIFICATION_SERVICE_SID',
+      );
+
+      const verification = await this.twilioClient.verify.v2
+        .services(serviceSid)
+        .verifications.create({ to: user.phoneNumber, channel: 'sms' });
+
+      return {
+        message: 'OTP resent successfully',
+        verificationSid: verification.sid,
+      };
+    } catch (error: any) {
+      throw new BadRequestException(
+        'Failed to resend OTP. Phone number not registered',
+      );
+    }
+  }
+
   async verifyOtp(
     user: User,
     { code }: VerifyOtpDto,
@@ -74,6 +120,29 @@ export class TwilioService {
       await this.userRepository.save(user);
     } catch (error) {
       throw new BadRequestException('Wrong Code');
+    }
+  }
+
+  async verify2FA(
+    user: User,
+    code: string,
+    verificationSid: string,
+  ): Promise<boolean> {
+    try {
+      const serviceSid = this.configService.get(
+        'TWILIO_VERIFICATION_SERVICE_SID',
+      );
+      const verificationCheck = await this.twilioClient.verify.v2
+        .services(serviceSid)
+        .verificationChecks.create({
+          to: user.phoneNumber,
+          code,
+          verificationSid,
+        });
+
+      return verificationCheck.status === 'approved';
+    } catch (error: any) {
+      throw new BadRequestException('Error verifying the code');
     }
   }
 }
