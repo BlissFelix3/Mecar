@@ -115,7 +115,7 @@ export class TwilioService {
       if (verificationCheck.status !== 'approved') {
         throw new Error('Wrong Verification code');
       }
-      // Updating verification status
+
       user.isPhoneVerified = true;
       await this.userRepository.save(user);
     } catch (error) {
