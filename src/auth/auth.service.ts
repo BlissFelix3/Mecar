@@ -25,6 +25,8 @@ import { Response as ExpressResponse } from 'express';
 import { UserRole } from 'src/shared/enums';
 import { ConfigService } from '@nestjs/config';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { SendResetLinkDto } from './dto/send-reset-link.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
@@ -147,7 +149,6 @@ export class AuthService {
       additionalInfo = { mechanic };
     }
 
-    // Set cookies using the 'cookie' package
     const cookieOptions = {
       httpOnly: true,
     };
@@ -269,8 +270,10 @@ export class AuthService {
     }
   }
 
-  async sendResetPasswordEmail(email: string): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { email } });
+  async sendResetPasswordEmail(sendLinkDto: SendResetLinkDto): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { email: sendLinkDto.email },
+    });
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -281,21 +284,16 @@ export class AuthService {
 
     try {
       await this.mailService.sendResetPasswordEmail(user.email, resetLink);
-    } catch (error: any) {
-      console.error('Error sending reset password email:', error);
+    } catch (error) {
       throw new BadRequestException('Failed to send reset password email');
     }
   }
 
   async resetPasswordWithToken(
     token: string,
-    newPassword: string,
-    confirmNewPassword: string,
+    resetPasswordDto: ResetPasswordDto,
   ): Promise<void> {
-    // Verify and decode the token
     const decodedToken = await this.verifyJwtToken(token);
-
-    // Use the decoded information to find the user
     const user = await this.userRepository.findOne({
       where: { id: decodedToken.sub, email: decodedToken.username },
     });
@@ -304,18 +302,17 @@ export class AuthService {
       throw new NotFoundException('User not found');
     }
 
-    // Check if newPassword matches confirmNewPassword
-    if (newPassword !== confirmNewPassword) {
+    const { newPassword, confirmNewPassword } = resetPasswordDto;
+
+    if (!newPassword || newPassword !== confirmNewPassword) {
       throw new BadRequestException(
         'New password and confirm new password do not match',
       );
     }
 
-    // Update the user's password
     const hashedPassword = await argon2.hash(newPassword);
     user.password = hashedPassword;
 
-    // Save the updated user
     await this.userRepository.save(user);
   }
 
@@ -325,6 +322,29 @@ export class AuthService {
   ): Promise<string> {
     const payload: JwtPayload = { sub: userId, username: email };
     return this.jwtService.sign(payload, { expiresIn: '1h' });
+  }
+
+  async changePassword(dto: ChangePasswordDto, user: User): Promise<any> {
+    const foundUser = await this.userRepository.findOne({
+      where: { id: user.id },
+    });
+
+    if (!foundUser) throw new NotFoundException('USER_NOT_FOUND');
+
+    const isPasswordValid = await argon2.verify(
+      foundUser.password,
+      dto.currentPassword,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current Password is incorrect');
+    }
+
+    const hashedPassword = await argon2.hash(dto.newPassword);
+
+    foundUser.password = hashedPassword;
+
+    await this.userRepository.save(foundUser);
   }
 
   async logout(response: ExpressResponse): Promise<void> {
@@ -385,40 +405,5 @@ export class AuthService {
 
   async validateUserByRefreshToken(payload: JwtPayload): Promise<any> {
     return this.userService.findById(payload.sub);
-  }
-
-  async viewProfile(user: User) {
-    const foundUser = await this.userRepository.findOne({
-      where: { id: user.id },
-    });
-
-    if (!foundUser) throw new NotFoundException('USER_NOT_FOUND');
-
-    return foundUser;
-  }
-
-  async changePassword(dto: ChangePasswordDto, user: User): Promise<any> {
-    const { currentPassword, newPassword } = dto;
-
-    const foundUser = await this.userRepository.findOne({
-      where: { id: user.id },
-    });
-
-    if (!foundUser) throw new NotFoundException('USER_NOT_FOUND');
-
-    const isPasswordValid = await argon2.verify(
-      foundUser.password,
-      currentPassword,
-    );
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Current Password is incorrect');
-    }
-
-    const hashedPassword = await argon2.hash(newPassword);
-
-    foundUser.password = hashedPassword;
-
-    await this.userRepository.save(foundUser);
   }
 }
