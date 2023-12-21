@@ -70,7 +70,7 @@ export class MechanicService {
       });
 
       if (!user) {
-        throw new NotFoundException('Car Owner not found');
+        throw new NotFoundException('User not found');
       }
 
       if (!user.roles.includes(UserRole.MECHANIC)) {
