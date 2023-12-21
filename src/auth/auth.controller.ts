@@ -6,8 +6,6 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Res,
-  HttpException,
-  HttpStatus,
   Req,
   Param,
   Get,
@@ -21,8 +19,7 @@ import { RolesGuard } from './guards/roles.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserRole } from 'src/shared/enums';
 import { Roles } from 'src/shared/decorators/roles.decorator';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { serialize } from 'cookie';
+import { BadRequestException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { TwilioService } from './otp_twilio/otp.service';
 import { User } from '../users/entities';
@@ -31,9 +28,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { GetUser } from 'src/shared/decorators/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
+import { SendResetLinkDto } from './dto/send-reset-link.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -47,7 +46,6 @@ export class AuthController {
 
   @Roles(UserRole.USER)
   @Post('signup')
-  // @UseGuards(RolesGuard)
   async signup(
     @Body() signupDto: SignupDto,
   ): Promise<{ user: User; otpMessage: string }> {
@@ -132,10 +130,10 @@ export class AuthController {
 
   @Post('send-reset-password-email')
   async sendResetPasswordEmail(
-    @Body('email') email: string,
+    @Body() sendLinkDto: SendResetLinkDto,
   ): Promise<{ message: string }> {
     try {
-      await this.authService.sendResetPasswordEmail(email);
+      await this.authService.sendResetPasswordEmail(sendLinkDto);
       return { message: 'Reset password email sent successfully' };
     } catch (error: any) {
       throw new BadRequestException(
@@ -147,65 +145,11 @@ export class AuthController {
   @Post('reset-password/:token')
   async resetPasswordWithToken(
     @Param('token') token: string,
-    @Body('newPassword') newPassword: string,
-    @Body('confirmNewPassword') confirmNewPassword: string,
+    @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<{ message: string }> {
-    await this.authService.resetPasswordWithToken(
-      token,
-      newPassword,
-      confirmNewPassword,
-    );
+    await this.authService.resetPasswordWithToken(token, resetPasswordDto);
 
     return { message: 'Password reset successful' };
-  }
-
-  @Post('refresh-token')
-  async refreshToken(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<any> {
-    const refreshToken = req.cookies['refreshToken'];
-    if (!refreshToken) {
-      throw new HttpException(
-        'Refresh token not found',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    try {
-      const decoded = await this.authService.verifyJwtToken(
-        refreshToken,
-        'refreshToken',
-      );
-      const user = await this.authService.validateUserByRefreshToken(decoded);
-
-      if (!user) {
-        throw new HttpException(
-          'Invalid refresh token',
-          HttpStatus.UNAUTHORIZED,
-        );
-      }
-
-      const newJwtToken = await this.authService.generateJwtToken(
-        user.id,
-        user.email,
-      );
-
-      const newRefreshToken = await this.authService.generateRefreshToken(
-        user.id,
-        user.email,
-      );
-
-      const newRefreshTokenCookie = serialize('refreshToken', newRefreshToken, {
-        httpOnly: true,
-      });
-
-      res.setHeader('Set-Cookie', newRefreshTokenCookie);
-
-      return { jwtToken: newJwtToken, user };
-    } catch (error) {
-      throw new HttpException('Invalid refresh token', HttpStatus.UNAUTHORIZED);
-    }
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -216,13 +160,6 @@ export class AuthController {
   ): Promise<{ message: string }> {
     res.clearCookie('refreshToken');
     return { message: 'Logged out successfully' };
-  }
-
-  @ApiBearerAuth()
-  @Get('profile')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  async viewProfile(@GetUser() user: User) {
-    return this.authService.viewProfile(user);
   }
 
   @UseGuards(AuthGuard('jwt'))
