@@ -1,9 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
-import { ConfigService } from '@nestjs/config';
 import {
-  INestApplication,
   ValidationError,
   ValidationPipe,
   BadRequestException,
@@ -14,7 +12,16 @@ config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Mecar API')
+    .setDescription('Mecar Backend')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('mecar')
+    .build();
 
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api', app, document);
   app.use(cookieParser());
 
   app.useGlobalPipes(
@@ -37,28 +44,6 @@ async function bootstrap() {
         ),
     }),
   );
-
-  const appHost = 'http://localhost:3000';
-  const configService = app.get<ConfigService>(ConfigService);
-  const environment = configService.get('environment');
-
-  const initSwagger = (app: INestApplication, serverUrl: string) => {
-    const config = new DocumentBuilder()
-      .setTitle('Mecar')
-      .setDescription('Mecar Web Application')
-      .addServer(serverUrl)
-      .setVersion('1.0')
-      .addBearerAuth()
-      .build();
-
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api', app, document);
-  };
-
-  if (environment !== 'production') {
-    initSwagger(app, appHost);
-  }
-
   await app.listen(3000);
 }
 bootstrap();
