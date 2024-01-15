@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateCarOwnerDto } from './dto/create-car-owner.dto';
 import { CarOwner } from './entities/car-owner.entity';
 import { User } from '../users/entities/user.entity';
-import { UserRole } from 'src/shared/enums';
+import { UserRole } from 'src/common/enums';
 
 @Injectable()
 export class CarOwnerService {
