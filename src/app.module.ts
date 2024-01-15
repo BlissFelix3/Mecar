@@ -14,6 +14,11 @@ import { CarOwnerModule } from './car-owner/car-owner.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { MailModule } from './mail/mail.module';
 import { UsersModule } from './users/users.module';
+import { CarsController } from './cars/cars.controller';
+import { CarsModule } from './cars/cars.module';
+import { ServicesModule } from './services/services.module';
+import { OrdersModule } from './orders/orders.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import appConfig from './config/env_config';
 
 @Module({
@@ -57,8 +62,12 @@ import appConfig from './config/env_config';
     CloudinaryModule,
     MailModule,
     UsersModule,
+    CarsModule,
+    ServicesModule,
+    OrdersModule,
+    ReviewsModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, CarsController],
   providers: [
     {
       provide: APP_INTERCEPTOR,
