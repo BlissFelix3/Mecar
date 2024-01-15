@@ -22,7 +22,7 @@ import { TwilioService } from './otp_twilio/otp.service';
 import { UserService } from 'src/users/users.service';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { Response as ExpressResponse } from 'express';
-import { UserRole } from 'src/shared/enums';
+import { UserRole } from 'src/common/enums';
 import { ConfigService } from '@nestjs/config';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { SendResetLinkDto } from './dto/send-reset-link.dto';
