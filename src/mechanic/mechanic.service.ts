@@ -7,9 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mechanic } from './entities/mechanic.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
-import { CreateMechanicDto } from './dto/create-mechanic.dto';
+import { CreateMechanicDto } from './dtos/create-mechanic.dto';
 import { User } from 'src/users/entities';
-import { UserRole } from 'src/shared/enums';
+import { UserRole } from 'src/common/enums';
 
 @Injectable()
 export class MechanicService {
