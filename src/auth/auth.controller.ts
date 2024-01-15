@@ -8,7 +8,6 @@ import {
   Res,
   Req,
   Param,
-  Get,
   Patch,
   Headers,
 } from '@nestjs/common';
@@ -17,23 +16,24 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { RolesGuard } from './guards/roles.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { UserRole } from 'src/shared/enums';
-import { Roles } from 'src/shared/decorators/roles.decorator';
+import { UserRole } from 'src/common/enums';
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { BadRequestException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { TwilioService } from './otp_twilio/otp.service';
 import { User } from '../users/entities';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GetUser } from 'src/shared/decorators/user.decorator';
+import { GetUser } from 'src/common/decorators/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ChangePasswordDto } from './dto/changePassword.dto';
 import { SendResetLinkDto } from './dto/send-reset-link.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { API_TAGS } from 'src/common/enums';
 
+@ApiTags(API_TAGS.AUTH)
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
@@ -164,7 +164,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'))
   @Patch('change-password')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(RolesGuard)
   async changePassword(
     @GetUser() user: User,
     @Body() changePasswordDto: ChangePasswordDto,
