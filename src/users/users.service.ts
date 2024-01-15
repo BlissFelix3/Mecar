@@ -2,12 +2,19 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities';
+import { CarOwner } from 'src/car-owner/entities/car-owner.entity';
+import { Mechanic } from 'src/mechanic/entities/mechanic.entity';
+import { UserRole } from 'src/common/enums';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(CarOwner)
+    private readonly carOwnerRepository: Repository<CarOwner>,
+    @InjectRepository(Mechanic)
+    private readonly mechanicRepository: Repository<Mechanic>,
   ) {}
 
   async findByEmailOrPhone(
@@ -41,5 +48,29 @@ export class UserService {
 
   async save(user: User): Promise<User> {
     return this.userRepository.save(user);
+  }
+
+  async getUserProfile(
+    userId: string,
+  ): Promise<{ user: User; profile?: CarOwner | Mechanic | null }> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    let profile;
+
+    if (user.roles.includes(UserRole.CAR_OWNER)) {
+      profile = await this.carOwnerRepository.findOne({
+        where: { user: { id: userId } },
+      });
+    } else if (user.roles.includes(UserRole.MECHANIC)) {
+      profile = await this.mechanicRepository.findOne({
+        where: { user: { id: userId } },
+      });
+    }
+
+    return { user, profile };
   }
 }
