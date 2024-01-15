@@ -6,11 +6,16 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { User } from 'src/users/entities';
+import { MechanicServiceEntity } from './services/entities/mechanic.service.entity';
+import { RenderService } from './services/render-service.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Mechanic, User]), CloudinaryModule],
+  imports: [
+    TypeOrmModule.forFeature([Mechanic, User, MechanicServiceEntity]),
+    CloudinaryModule,
+  ],
   controllers: [MechanicController],
-  providers: [MechanicService, CloudinaryService],
-  exports: [MechanicService],
+  providers: [MechanicService, RenderService, CloudinaryService],
+  exports: [MechanicService, RenderService],
 })
 export class MechanicModule {}
