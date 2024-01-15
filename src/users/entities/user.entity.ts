@@ -7,7 +7,7 @@ import {
   JoinColumn,
   OneToOne,
 } from 'typeorm';
-import { UserRole } from 'src/shared/enums';
+import { UserRole } from 'src/common/enums';
 import { Mechanic } from 'src/mechanic/entities/mechanic.entity';
 import { CarOwner } from 'src/car-owner/entities/car-owner.entity';
 
