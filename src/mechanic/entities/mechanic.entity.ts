@@ -4,8 +4,10 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from 'src/users/entities';
+import { MechanicServiceEntity } from '../services/entities/mechanic.service.entity';
 
 @Entity('mechanics')
 export class Mechanic {
@@ -42,7 +44,10 @@ export class Mechanic {
   @Column()
   businessPermitImage: string;
 
-  @OneToOne(() => User, (user) => user.carOwner)
+  @OneToOne(() => User, (user) => user.mechanic)
   @JoinColumn()
   user: User;
+
+  @OneToMany(() => MechanicServiceEntity, (service) => service.mechanic)
+  services: MechanicServiceEntity[];
 }
