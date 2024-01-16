@@ -44,6 +44,13 @@ export class CloudinaryService {
     }
   }
 
+  async uploadProfilePic(
+    file: any,
+    id: string,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return this.uploadImage(file, 'profile-pictures', id);
+  }
+
   async uploadBusinessPermit(
     file: any,
     id: string,
