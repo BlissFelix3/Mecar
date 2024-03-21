@@ -5,7 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Order } from 'src/orders/entity/order.entity';
+import { Orders } from 'src/orders/entity/order.entity';
 import { ReviewRating } from 'src/common/enums';
 
 @Entity('reviews')
@@ -13,9 +13,9 @@ export class Review {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Order, (order) => order.reviews)
+  @ManyToOne(() => Orders, (orders) => orders.reviews)
   @JoinColumn()
-  order: Order;
+  order: Orders;
 
   @Column({ type: 'enum', enum: ReviewRating })
   rating: ReviewRating;

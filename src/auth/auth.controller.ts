@@ -22,8 +22,6 @@ import { BadRequestException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { TwilioService } from './otp_twilio/otp.service';
 import { User } from '../users/entities';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { GetUser } from 'src/common/decorators/user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
@@ -38,8 +36,6 @@ import { API_TAGS } from 'src/common/enums';
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     private readonly authService: AuthService,
     private readonly twilioService: TwilioService,
   ) {}

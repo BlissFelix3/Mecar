@@ -23,7 +23,6 @@ export class CarOwnerController {
   ) {}
 
   @UseGuards(RolesGuard)
-  @Roles(UserRole.CAR_OWNER)
   @Post('create')
   async createCarOwner(
     @Headers('registration-token') registrationToken: string,

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order } from 'src/orders/entity/order.entity';
+import { Orders } from 'src/orders/entity/order.entity';
 import { ReviewDto } from './dtos/review.dto';
 import { Review } from './entity/review.entity';
 import { BadRequestException } from '@nestjs/common';
@@ -12,8 +12,8 @@ export class ReviewService {
   constructor(
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
-    @InjectRepository(Order)
-    private readonly orderRepository: Repository<Order>,
+    @InjectRepository(Orders)
+    private readonly orderRepository: Repository<Orders>,
   ) {}
 
   async addReview(addReviewDto: ReviewDto): Promise<Review> {

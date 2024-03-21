@@ -10,6 +10,7 @@ import { User } from 'src/users/entities';
 import { Cars } from 'src/cars/entities/car.entity';
 import { GeneralRepair } from '../services/entities/general-repair.entity';
 import { MaintenanceRepair } from '../services/entities/maintenance-repair.entity';
+import { Orders } from 'src/orders/entity/order.entity';
 
 @Entity('car_owners')
 export class CarOwner {
@@ -31,6 +32,9 @@ export class CarOwner {
 
   @OneToMany(() => Cars, (cars) => cars.owner)
   cars: Cars[];
+
+  @OneToMany(() => Orders, (orders) => orders.carOwner)
+  orders: Orders[];
 
   @OneToMany(() => GeneralRepair, (generalRepair) => generalRepair.carOwner)
   generalRepair: GeneralRepair[];

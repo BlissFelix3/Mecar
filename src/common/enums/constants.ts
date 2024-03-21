@@ -29,6 +29,7 @@ export enum API_TAGS {
 }
 
 export enum OrderStatus {
+  PENDING = 'Pending',
   IN_PROGRESS = 'In Progress',
   COMPLETED = 'Completed',
   CANCELLED = 'Cancelled',

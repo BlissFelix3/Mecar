@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { CarOwner } from 'src/car-owner/entities/car-owner.entity';
 import { MaintenanceType } from 'src/common/enums';
+import { OrderStatus } from 'src/common/enums';
 
 @Entity('maintenance_repair')
 export class MaintenanceRepair {
@@ -15,6 +16,9 @@ export class MaintenanceRepair {
 
   @Column()
   carName: string;
+
+  @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.IN_PROGRESS })
+  status: OrderStatus;
 
   @Column({ nullable: true })
   maintenanceType?: MaintenanceType;

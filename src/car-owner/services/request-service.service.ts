@@ -9,6 +9,7 @@ import { Cars } from 'src/cars/entities/car.entity';
 import { GeneralRepair } from './entities/general-repair.entity';
 import { MaintenanceRepair } from './entities/maintenance-repair.entity';
 import { addHours } from 'date-fns';
+import { OrderStatus } from 'src/common/enums';
 
 @Injectable()
 export class RequestService {
@@ -65,6 +66,7 @@ export class RequestService {
       carName: createMaintenanceRepairDto.car,
       day: dateInGMT1,
       time: hardcodedTime,
+      status: OrderStatus.PENDING,
     });
 
     await this.maintenanceOrderRepository.save(maintenanceRepair);
@@ -95,6 +97,7 @@ export class RequestService {
     const generalRepair = this.repairOrderRepository.create({
       ...createGeneralRepairDto,
       carOwner,
+      status: OrderStatus.PENDING,
     });
 
     await this.repairOrderRepository.save(generalRepair);

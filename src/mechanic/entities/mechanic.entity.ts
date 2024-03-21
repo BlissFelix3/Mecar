@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/users/entities';
 import { MechanicServiceEntity } from '../services/entities/mechanic.service.entity';
+import { Orders } from 'src/orders/entity/order.entity';
 
 @Entity('mechanics')
 export class Mechanic {
@@ -47,6 +48,9 @@ export class Mechanic {
   @OneToOne(() => User, (user) => user.mechanic)
   @JoinColumn()
   user: User;
+
+  @OneToMany(() => Orders, (orders) => orders.mechanic)
+  orders: Orders[];
 
   @OneToMany(() => MechanicServiceEntity, (service) => service.mechanic)
   services: MechanicServiceEntity[];
